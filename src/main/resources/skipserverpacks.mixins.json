@@ -1,12 +1,13 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "io.github.maheevil.example.mixin",
+  "package": "io.github.maheevil.skipserverpacks.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
   ],
   "client": [
-    "ExampleMixin"
+    "ResourcePackRecorderMixin",
+    "ClientPacketListenerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
