@@ -7,7 +7,6 @@
   ],
   "client": [
     "ClientCommonPacketListenerImplMixin",
-    "ClientPacketListenerMixin",
     "ResourcePackRecorderMixin",
     "ServerDataMixin"
   ],
