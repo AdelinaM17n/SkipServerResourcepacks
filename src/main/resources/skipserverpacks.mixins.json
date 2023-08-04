@@ -6,8 +6,10 @@
   "mixins": [
   ],
   "client": [
+    "ClientCommonPacketListenerImplMixin",
+    "ClientPacketListenerMixin",
     "ResourcePackRecorderMixin",
-    "ClientPacketListenerMixin"
+    "ServerDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1

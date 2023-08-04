@@ -1,8 +1,8 @@
 package io.github.maheevil.skipserverpacks.mixin;
 
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
-import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
+//import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
+//import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Pseudo
 @Mixin(targets = "com/replaymod/recording/packet/ResourcePackRecorder")
 public abstract class ResourcePackRecorderMixin {
-    @Shadow public abstract ServerboundResourcePackPacket makeStatusPacket(String hash, ServerboundResourcePackPacket.Action action);
+    /*@Shadow public abstract ServerboundResourcePackPacket makeStatusPacket(String hash, ServerboundResourcePackPacket.Action action);
 
     @Inject(
             method = "handleResourcePack",
@@ -27,5 +27,5 @@ public abstract class ResourcePackRecorderMixin {
             netManager.send(this.makeStatusPacket(hash, ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED));
             //ci.setReturnValue();
             ci.cancel();
-    }
+    }*/
 }

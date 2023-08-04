@@ -1,8 +1,8 @@
 package io.github.maheevil.skipserverpacks.mixin;
 
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
-import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
+//import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
+//import net.minecraft.network.protocol.game.ServerboundResourcePackPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
-	@Shadow protected abstract void send(ServerboundResourcePackPacket.Action action);
+	//@Shadow protected abstract void send(ServerboundResourcePackPacket.Action action);
 
-	@Inject(
+	/*@Inject(
 			method = "handleResourcePack",
 			at = @At(value = "HEAD"),
 			cancellable=true
@@ -22,5 +22,5 @@ public abstract class ClientPacketListenerMixin {
 			this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
 			this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
 			ci.cancel();
-	}
+	}*/
 }
