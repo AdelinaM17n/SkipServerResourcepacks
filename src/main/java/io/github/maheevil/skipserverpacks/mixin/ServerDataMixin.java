@@ -16,29 +16,29 @@ public class ServerDataMixin implements SkippedRequiredPackGetter {
     private boolean requiredPackSkipped = false;
 
     @Inject(
-            method = "write",
-            at = @At(
-                    "TAIL"
-            ),
-            locals = LocalCapture.CAPTURE_FAILHARD
-    )
-    private void injectTail$write$skipserverpacks(CallbackInfoReturnable<CompoundTag> cir, CompoundTag compoundTag){
-        compoundTag.putBoolean("requiredPackSkipped", requiredPackSkipped);
-    }
-
-    @Inject(
             method = "read",
             at = @At(
                     "TAIL"
             ),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    private static void injectTail$read$skipserverpacks(CompoundTag nbtCompound, CallbackInfoReturnable<ServerData> cir, ServerData serverData){
+    private static void injectTail$read$skipserverpacks(CompoundTag nbtCompound, CallbackInfoReturnable<ServerData> cir, ServerData serverData) {
         if (nbtCompound.contains("requiredPackSkipped")) {
             ((SkippedRequiredPackGetter) serverData).setRequiredPackSkipped$skipserverpacks(
                     nbtCompound.getBoolean("requiredPackSkipped")
             );
         }
+    }
+
+    @Inject(
+            method = "write",
+            at = @At(
+                    "TAIL"
+            ),
+            locals = LocalCapture.CAPTURE_FAILHARD
+    )
+    private void injectTail$write$skipserverpacks(CallbackInfoReturnable<CompoundTag> cir, CompoundTag compoundTag) {
+        compoundTag.putBoolean("requiredPackSkipped", requiredPackSkipped);
     }
 
     @Override

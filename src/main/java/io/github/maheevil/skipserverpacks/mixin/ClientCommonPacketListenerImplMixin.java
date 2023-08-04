@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
@@ -23,9 +24,13 @@ import java.net.URL;
 
 @Mixin(ClientCommonPacketListenerImpl.class)
 public abstract class ClientCommonPacketListenerImplMixin {
-    @Shadow protected abstract void send(ServerboundResourcePackPacket.Action action);
+    @Shadow
+    @Final
+    @Nullable
+    protected ServerData serverData;
 
-    @Shadow @Final @Nullable protected ServerData serverData;
+    @Shadow
+    protected abstract void send(ServerboundResourcePackPacket.Action action);
 
     @ModifyArgs(
             method = "showServerPackPrompt",
@@ -34,10 +39,10 @@ public abstract class ClientCommonPacketListenerImplMixin {
                     target = "Lnet/minecraft/client/gui/screens/ConfirmScreen;<init>(Lit/unimi/dsi/fastutil/booleans/BooleanConsumer;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V"
             )
     )
-    private void editArgs$ConfirmScreen$skipserverpacks(Args args,URL uRL, String string, boolean bl, @Nullable Component component ){
-        if(bl){
+    private void editArgs$ConfirmScreen$skipserverpacks(Args args, URL uRL, String string, boolean bl, @Nullable Component component) {
+        if (bl) {
             // convert this to a translatable and add some localisations
-            args.set(2,Component.literal(
+            args.set(2, Component.literal(
                     """
                             SkipServerResourcePacks mod allows you to decline the resource-pack without getting disconnected using an advanced technique called "lying" to server
 
@@ -52,7 +57,7 @@ public abstract class ClientCommonPacketListenerImplMixin {
     }
 
     @Inject(
-            method ="method_52772",
+            method = "method_52772",
             at = @At(
                     value = "INVOKE",
                     target = "net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.send (Lnet/minecraft/network/protocol/common/ServerboundResourcePackPacket$Action;)V",
@@ -61,11 +66,12 @@ public abstract class ClientCommonPacketListenerImplMixin {
             ),
             cancellable = true
     )
-    private void injectAtServerDataSetPackDecline$skipserverpacks(Screen screen, URL uRL, String string, boolean bl, boolean bl2, CallbackInfo ci){
+    private void injectAtServerDataSetPackDecline$skipserverpacks(Screen screen, URL uRL, String string, boolean bl, boolean bl2, CallbackInfo ci) {
         if (bl) {
             this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
             this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
-            if(serverData != null){
+            if (serverData != null) {
+                this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
                 ((SkippedRequiredPackGetter) this.serverData).setRequiredPackSkipped$skipserverpacks(true);
                 ServerList.saveSingleServer(this.serverData);
             }
@@ -73,25 +79,40 @@ public abstract class ClientCommonPacketListenerImplMixin {
         } else if (this.serverData != null) {
             this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
         }
+    }
 
+    @Redirect(
+            method = "handleResourcePack",
+            at = @At(
+                    value = "INVOKE",
+                    target = "net/minecraft/client/multiplayer/ServerData.getResourcePackStatus ()Lnet/minecraft/client/multiplayer/ServerData$ServerPackStatus;",
+                    ordinal = 2
+            )
+    )
+    private ServerData.ServerPackStatus redirectPackStatus$ordinal2$skipserverpacks(ServerData instance) {
+        if (((SkippedRequiredPackGetter) instance).getRequiredPackSkipped$skipserverpacks()) {
+            return ServerData.ServerPackStatus.ENABLED;
+        } else {
+            return instance.getResourcePackStatus();
+        }
     }
 
     @Inject(
-			method = "handleResourcePack",
-			at = @At(
+            method = "handleResourcePack",
+            at = @At(
                     value = "INVOKE",
                     target = "net/minecraft/client/multiplayer/ClientCommonPacketListenerImpl.send (Lnet/minecraft/network/protocol/common/ServerboundResourcePackPacket$Action;)V",
                     ordinal = 2,
                     shift = At.Shift.BEFORE
             ),
-			cancellable=true
-	)
-	public void injectBeforeDeclinePack$handleResourcePack$skipserverpacks(ClientboundResourcePackPacket par1, CallbackInfo ci) {
+            cancellable = true
+    )
+    public void injectBeforeDeclinePack$handleResourcePack$skipserverpacks(ClientboundResourcePackPacket par1, CallbackInfo ci) {
         //if(this.serverData != null && ((SkippedRequiredPackGetter) this.serverData).getRequiredPackSkipped$skipserverpacks()) {
-            this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-            this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
-            ci.cancel();
+        this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
+        this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
+        ci.cancel();
         //}
-	}
+    }
 
 }
