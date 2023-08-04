@@ -2,6 +2,8 @@ package io.github.maheevil.skipserverpacks.mixin;
 
 import io.github.maheevil.skipserverpacks.ducks.SkippedRequiredPackGetter;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.client.multiplayer.ServerData;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
@@ -31,6 +34,10 @@ public abstract class ClientCommonPacketListenerImplMixin {
 
     @Shadow
     protected abstract void send(ServerboundResourcePackPacket.Action action);
+
+    @Shadow
+    @Final
+    protected Minecraft minecraft;
 
     @ModifyArgs(
             method = "showServerPackPrompt",
@@ -68,16 +75,43 @@ public abstract class ClientCommonPacketListenerImplMixin {
     )
     private void injectAtServerDataSetPackDecline$skipserverpacks(Screen screen, URL uRL, String string, boolean bl, boolean bl2, CallbackInfo ci) {
         if (bl) {
-            this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-            this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
             if (serverData != null) {
-                this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
-                ((SkippedRequiredPackGetter) this.serverData).setRequiredPackSkipped$skipserverpacks(true);
+                handleDeclineActions$skipserverpacks(true);
                 ServerList.saveSingleServer(this.serverData);
             }
             ci.cancel();
         } else if (this.serverData != null) {
             this.serverData.setResourcePackStatus(ServerData.ServerPackStatus.DISABLED);
+            this.minecraft.setScreen(new ConfirmScreen(
+                    xBool -> {
+                        this.minecraft.setScreen(screen);
+                        handleDeclineActions$skipserverpacks(!xBool);
+                    },
+                    Component.literal("To lie or to not lie?"),
+                    Component.literal(
+                            """
+                                    You can decline the resource pack without letting the server know, either option won't disconnect you.
+                                                                
+                                    This is useful if the server won't let you decline the resource-pack even if is not marked as required
+                                    """
+                    ),
+                    Component.literal("Decline and let the server know"),
+                    Component.literal("Decline without the Server Knowing")
+            ));
+            ServerList.saveSingleServer(this.serverData);
+        }
+        ci.cancel();
+    }
+
+    @Unique
+    private void handleDeclineActions$skipserverpacks(boolean liedToServer) {
+        if (liedToServer) {
+            this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
+            this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
+            assert this.serverData != null;
+            ((SkippedRequiredPackGetter) this.serverData).setRequiredPackSkipped$skipserverpacks(true);
+        } else {
+            this.send(ServerboundResourcePackPacket.Action.DECLINED);
         }
     }
 
@@ -108,11 +142,12 @@ public abstract class ClientCommonPacketListenerImplMixin {
             cancellable = true
     )
     public void injectBeforeDeclinePack$handleResourcePack$skipserverpacks(ClientboundResourcePackPacket par1, CallbackInfo ci) {
-        //if(this.serverData != null && ((SkippedRequiredPackGetter) this.serverData).getRequiredPackSkipped$skipserverpacks()) {
-        this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
-        this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
-        ci.cancel();
-        //}
+        assert this.serverData != null;
+        if(((SkippedRequiredPackGetter) this.serverData).getRequiredPackSkipped$skipserverpacks()) {
+            this.send(ServerboundResourcePackPacket.Action.ACCEPTED);
+            this.send(ServerboundResourcePackPacket.Action.SUCCESSFULLY_LOADED);
+            ci.cancel();
+        }
     }
 
 }
