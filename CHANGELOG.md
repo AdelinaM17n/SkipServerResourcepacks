@@ -1,0 +1,1 @@
+- Rework the mod for the new server resource-pack system

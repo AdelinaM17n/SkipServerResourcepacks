@@ -7,8 +7,8 @@ on: [ push ]
 env:
   #MINECRAFT_VERSION: 1.19.4
   JAVA_VERSION: 17
-  VERSION: fabric-1.20+1.0.0
-  RELEASE_NAME: SkipServerResourcePacks-1.0.0+1.20
+  VERSION: fabric-23w31a+2.0.0
+  RELEASE_NAME: SkipServerResourcePacks-2.0.0+23w31a
   MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
   CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
 
@@ -58,7 +58,7 @@ jobs:
 
           name: "${{env.RELEASE_NAME}}"
           version: "${{env.VERSION}}"
-          version-type: release
+          version-type: alpha
           changelog-file: CHANGELOG.md
 
           loaders: |
