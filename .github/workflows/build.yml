@@ -5,7 +5,7 @@ name: Upload Artifacts and Optionally Publish on Curseforge & Modrinth
 on: [ push ]
 
 env:
-  #MINECRAFT_VERSION: 1.19.4
+  MINECRAFT_VERSION: 23w31a
   JAVA_VERSION: 17
   VERSION: fabric-23w31a+2.0.0
   RELEASE_NAME: SkipServerResourcePacks-2.0.0+23w31a
