@@ -95,8 +95,8 @@ public abstract class ClientCommonPacketListenerImplMixin {
                                     This is useful if the server won't let you decline the resource-pack even if is not marked as required
                                     """
                     ),
-                    Component.literal("Decline and let the server know"),
-                    Component.literal("Decline without the Server Knowing")
+                    Component.literal("Decline and not lie"),
+                    Component.literal("Decline and lie")
             ));
             ServerList.saveSingleServer(this.serverData);
         }

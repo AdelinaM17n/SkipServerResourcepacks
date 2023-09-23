@@ -6,7 +6,7 @@
   "name": "Skip Server Resource Packs",
   "description": "This mod allows you to accept a server resource pack without downloading it/enabling it.",
   "authors": [
-    "Maheesha Adelina"
+    "Adelina"
   ],
   "contact": {
     "homepage": "https://github.com/MaheEvil/SkipServerResourcepacks",
@@ -24,7 +24,7 @@
 
   "depends": {
     "fabricloader": ">=0.12.9",
-    "minecraft": "1.20.2-alpha.23.31.a",
+    "minecraft": ">=1.20.2",
     "java": ">=17"
   },
   "suggests": {
